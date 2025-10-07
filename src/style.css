@@ -1,5 +1,41 @@
-.icon {
-  width: 64px;
-  vertical-align: top;
-  border: 1px solid salmon;
+body {
+  margin: 0;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+  cursor: none;
+}
+#counter {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  font-size: 24px;
+  z-index: 10;
+}
+#targetButton {
+  position: absolute;
+  padding: 15px;
+  background: green;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.1s;
+  z-index: 5;
+}
+#decrementButton {
+  position: absolute;
+  padding: 15px;
+  background: red;
+  color: white;
+  border: none;
+  cursor: pointer;
+  bottom: 20px;
+  left: 20px;
+}
+.chaser {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background: blue;
+  border-radius: 5px;
+  transition: transform 0s;
 }
