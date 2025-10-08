@@ -11,16 +11,6 @@ body {
   font-size: 24px;
   z-index: 10;
 }
-#targetButton {
-  position: absolute;
-  padding: 15px;
-  background: green;
-  color: white;
-  border: none;
-  cursor: pointer;
-  transition: transform 0.1s;
-  z-index: 5;
-}
 #decrementButton {
   position: absolute;
   padding: 15px;
@@ -30,6 +20,16 @@ body {
   cursor: pointer;
   bottom: 20px;
   left: 20px;
+}
+.targetBtn {
+  position: absolute;
+  padding: 15px;
+  background: green;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.1s;
+  z-index: 5;
 }
 .chaser {
   position: absolute;
