@@ -10,14 +10,13 @@ document.body.innerHTML = `
 </head>
 <body>
   <div id="counter">Count: 0</div>
-  <button id="targetButton">Click Me!</button>
   <button id="chaserButton">-20 (Spawn Chaser)</button>
   <script src="game.js"></script>
 </body>
 </html>
 `;
 
-const BUTTON_MAXSPEED: number = 5;
+const BUTTON_MAXSPEED: number = 3;
 const CHASER_STARTSPEED: number = 1;
 const CHASER_MAXSPEED: number = 6;
 const CHASER_ACCEL: number = 0.01;
@@ -47,13 +46,20 @@ class targetButton {
   btnRect: DOMRect;
   btnCenter: Vec;
 
-  constructor() {
-    this.btn = document.getElementById(
-      "targetButton",
-    ) as HTMLButtonElement;
-    this.x = globalThis.innerWidth;
-    this.y = globalThis.innerHeight;
+  constructor(buttonElem: string, buttonText: string) {
+    // this.btn = document.getElementById(
+    //   buttonElem,
+    // ) as HTMLButtonElement;
+    this.x = globalThis.innerWidth / 2;
+    this.y = globalThis.innerHeight / 2;
     this.vel = { x: 0, y: 0 };
+    this.btn = document.createElement("button");
+    this.btn.id = buttonElem;
+    this.btn.classList.add(buttonElem);
+    this.btn.textContent = buttonText;
+    this.btn.style.left = `${this.x}px`;
+    this.btn.style.top = `${this.y}px`;
+    document.body.appendChild(this.btn);
     this.setBtnPos();
     this.btnRect = this.btn.getBoundingClientRect();
     this.btnCenter = {
@@ -62,7 +68,7 @@ class targetButton {
     };
   }
 
-  // Update button position
+  // Update button position on screen
   setBtnPos() {
     this.btn.style.left = `${this.x}px`;
     this.btn.style.top = `${this.y}px`;
@@ -86,17 +92,23 @@ class targetButton {
 
   // Kick button in a direction (Needs work for actual implementation)
   kickBtn(pos: Vec, strength: number) {
-    const dx = this.btnCenter.x - pos.x;
-    const dy = this.btnCenter.y - pos.y;
-    const d = Math.max(1, Math.hypot(dx, dy));
-    const scale = strength / (d * d); // inverse square
-    this.vel.x += (dx / d) * scale;
-    this.vel.y += (dy / d) * scale;
+    this.addRepulsion(pos, strength);
+    this.updatePosWVel();
+    this.setBtnPos();
   }
 
+  // Update recorded button position
   updatePosWVel() {
     this.x += this.vel.x;
     this.y += this.vel.y;
+  }
+
+  fleeFromChasers(chasers: Chaser[]) {
+    for (const chaser of chasers) {
+      this.addRepulsion(chaser.pos, 10000); // Button flees from chasers too
+    }
+    this.updatePosWVel();
+    this.setBtnPos();
   }
 
   update() {
@@ -108,10 +120,6 @@ class targetButton {
 
     this.addRepulsion(mouse, 20000);
 
-    for (const chaser of chasers) {
-      this.addRepulsion(chaser.pos, 10000); // Button flees from chasers too
-    }
-
     this.updatePosWVel();
 
     // Keep button on screen
@@ -122,15 +130,14 @@ class targetButton {
   }
 }
 
-let targetBtn = new targetButton();
-
 // Chaser class
 class Chaser {
   pos: Vec;
   speed: number;
   el: HTMLElement;
+  btnToChase: targetButton;
 
-  constructor(x: number, y: number) {
+  constructor(x: number, y: number, buttonToChase: targetButton) {
     this.pos = { x, y };
     this.speed = CHASER_STARTSPEED;
     this.el = document.createElement("div");
@@ -138,12 +145,13 @@ class Chaser {
     this.el.style.left = `${x}px`;
     this.el.style.top = `${y}px`;
     document.body.appendChild(this.el);
+    this.btnToChase = buttonToChase;
   }
 
-  update(target: Vec) {
-    const dx = target.x - this.pos.x;
-    const dy = target.y - this.pos.y;
-    const d = dist(this.pos, target);
+  update() {
+    const dx = this.btnToChase.btnCenter.x - this.pos.x;
+    const dy = this.btnToChase.btnCenter.y - this.pos.y;
+    const d = dist(this.pos, this.btnToChase.btnCenter);
 
     if (d > 5 && this.speed <= CHASER_MAXSPEED) {
       this.speed += CHASER_ACCEL; // Accelerate over time
@@ -154,6 +162,7 @@ class Chaser {
       count++;
       counterEl.textContent = `Count: ${count}`;
       this.speed = CHASER_STARTSPEED;
+      this.btnToChase.kickBtn(mouse, 100000);
       // Chaser doesn't die just yet, this part could be useful later though
       // document.body.removeChild(this.el);
       // return true;
@@ -166,20 +175,7 @@ class Chaser {
 }
 
 const chasers: Chaser[] = [];
-
-// Main Update Loop
-function update() {
-  // Update chasers
-  for (let i = chasers.length - 1; i >= 0; i--) {
-    if (chasers[i].update(targetBtn.btnCenter)) {
-      chasers.splice(i, 1);
-    }
-  }
-
-  requestAnimationFrame(update);
-}
-
-update();
+let targetBtn = new targetButton("targetButton", "Click Me!");
 
 // Button interactions
 targetBtn.btn.addEventListener("click", () => {
@@ -197,8 +193,25 @@ chsrBtn.addEventListener("click", () => {
     counterEl.textContent = `Count: ${count}`;
     const spawnX = Math.random() * globalThis.innerWidth;
     const spawnY = Math.random() * globalThis.innerHeight;
-    chasers.push(new Chaser(spawnX, spawnY));
+    chasers.push(new Chaser(spawnX, spawnY, targetBtn));
   } else {
     alert("Not enough points!");
   }
 });
+
+// Main Update Loop
+function update() {
+  // Update target button
+  targetBtn.update();
+
+  // Update chasers
+  for (let i = chasers.length - 1; i >= 0; i--) {
+    if (chasers[i].update()) {
+      chasers.splice(i, 1);
+    }
+  }
+
+  requestAnimationFrame(update);
+}
+
+update();

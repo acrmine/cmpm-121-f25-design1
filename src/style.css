@@ -11,7 +11,7 @@ body {
   font-size: 24px;
   z-index: 10;
 }
-#decrementButton {
+#chaserButton {
   position: absolute;
   padding: 15px;
   background: red;
@@ -21,7 +21,7 @@ body {
   bottom: 20px;
   left: 20px;
 }
-.targetBtn {
+.targetButton {
   position: absolute;
   padding: 15px;
   background: green;
