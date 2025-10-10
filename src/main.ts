@@ -9,7 +9,7 @@ document.body.innerHTML = `
   <title>Evasive Button Game</title>
 </head>
 <body>
-  <div id="counter">Count: 0</div>
+  <div id="counter">Tags: 0</div>
   <button id="chaserButton">-20 (Spawn Chaser)</button>
   <script src="game.js"></script>
 </body>
@@ -43,6 +43,12 @@ const shrink = (val: number, amount: number): number => {
     }
   }
   return val;
+};
+
+// Utility: update counter by adding step to count
+const addToCounter = (step: number) => {
+  count += step;
+  counterEl.textContent = `Tags: ${count}`;
 };
 
 type Vec = { x: number; y: number };
@@ -211,8 +217,7 @@ class Chaser {
       this.pos.y += (dy / d) * this.speed;
     } else {
       // Collision: increment counter, reset speed
-      count++;
-      counterEl.textContent = `Count: ${count}`;
+      addToCounter(1);
       this.speed = CHASER_STARTSPEED;
       this.btnToChase.kickBtn(mouse, 1000000);
       // Chaser doesn't die just yet, this part could be useful later though
@@ -231,8 +236,7 @@ let targetBtn = new targetButton("targetButton", "Catch Me! 🚀");
 
 // Button interactions
 targetBtn.btn.addEventListener("click", () => {
-  count++;
-  counterEl.textContent = `Count: ${count}`;
+  addToCounter(1);
 
   // Reset button speed on click
   targetBtn.vel.x = 0;
@@ -241,8 +245,7 @@ targetBtn.btn.addEventListener("click", () => {
 
 chsrBtn.addEventListener("click", () => {
   if (count >= 20) {
-    count -= 20;
-    counterEl.textContent = `Count: ${count}`;
+    addToCounter(-20);
     const spawnX = Math.random() * globalThis.innerWidth;
     const spawnY = Math.random() * globalThis.innerHeight;
     chasers.push(new Chaser(spawnX, spawnY, targetBtn));
@@ -254,9 +257,8 @@ chsrBtn.addEventListener("click", () => {
 // Debug Points Button
 document.addEventListener("keydown", (event) => {
   if (event.key === "c") {
-    count += 20;
+    addToCounter(20);
   }
-  counterEl.textContent = `Count: ${count}`;
 });
 
 // Main Update Loop

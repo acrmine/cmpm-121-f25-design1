@@ -27,7 +27,7 @@ body {
   border: none;
   cursor: pointer;
 }
-chaserbutton:disabled {
+.chaserbutton:disabled {
   background-color: #cccccc; /* Grey background */
   color: #666666; /* Darker grey text */
   cursor: not-allowed; /* Change cursor to indicate it's not clickable */
