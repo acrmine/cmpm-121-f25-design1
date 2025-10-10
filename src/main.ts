@@ -261,6 +261,9 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
+// Increases counter with set interval
+setInterval(addToCounter, 1000, 1);
+
 // Main Update Loop
 function update() {
   // Update target button
