@@ -16,19 +16,34 @@ document.body.innerHTML = `
 </html>
 `;
 
-const BUTTON_MAXSPEED: number = 3;
+const BUTTON_MAXSPEED: number = 2;
+const BUTTON_DRAG: number = 0.1;
+const BUTTON_FLEEDIST: number = 300;
 const CHASER_STARTSPEED: number = 1;
 const CHASER_MAXSPEED: number = 6;
-const CHASER_ACCEL: number = 0.01;
+const CHASER_ACCEL: number = 0.1;
 
 //Point counter for main resource
 let count = 0;
 
 const counterEl = document.getElementById("counter") as HTMLDivElement;
 const chsrBtn = document.getElementById("chaserButton") as HTMLButtonElement;
+chsrBtn.toggleAttribute("disabled");
 
 // Utility: distance between two points
 const dist = (a: Vec, b: Vec) => Math.hypot(a.x - b.x, a.y - b.y);
+
+// Utility: shrink "val" towards 0 by "amount" without passing it
+const shrink = (val: number, amount: number): number => {
+  if (val !== 0) {
+    if (val > 0) {
+      return Math.max(0, val - amount);
+    } else if (val < 0) {
+      return Math.min(0, val + amount);
+    }
+  }
+  return val;
+};
 
 type Vec = { x: number; y: number };
 
@@ -45,20 +60,19 @@ class targetButton {
   vel: Vec;
   btnRect: DOMRect;
   btnCenter: Vec;
+  kicked: boolean;
 
   constructor(buttonElem: string, buttonText: string) {
     // this.btn = document.getElementById(
     //   buttonElem,
     // ) as HTMLButtonElement;
-    this.x = globalThis.innerWidth / 2;
-    this.y = globalThis.innerHeight / 2;
-    this.vel = { x: 0, y: 0 };
     this.btn = document.createElement("button");
     this.btn.id = buttonElem;
     this.btn.classList.add(buttonElem);
     this.btn.textContent = buttonText;
-    this.btn.style.left = `${this.x}px`;
-    this.btn.style.top = `${this.y}px`;
+    this.x = globalThis.innerWidth / 2;
+    this.y = globalThis.innerHeight / 2;
+    this.vel = { x: 0, y: 0 };
     document.body.appendChild(this.btn);
     this.setBtnPos();
     this.btnRect = this.btn.getBoundingClientRect();
@@ -66,6 +80,10 @@ class targetButton {
       x: this.x + this.btnRect.width / 2,
       y: this.y + this.btnRect.height / 2,
     };
+    this.x -= this.btnRect.width / 2;
+    this.y -= this.btnRect.width / 2;
+    this.setBtnPos();
+    this.kicked = false;
   }
 
   // Update button position on screen
@@ -82,16 +100,11 @@ class targetButton {
     const scale = strength / (d * d); // inverse square
     this.vel.x += (dx / d) * scale;
     this.vel.y += (dy / d) * scale;
-
-    const speed = Math.hypot(this.vel.x, this.vel.y);
-    if (speed > BUTTON_MAXSPEED) {
-      this.vel.x = (this.vel.x / speed) * BUTTON_MAXSPEED;
-      this.vel.y = (this.vel.y / speed) * BUTTON_MAXSPEED;
-    }
   }
 
   // Kick button in a direction (Needs work for actual implementation)
   kickBtn(pos: Vec, strength: number) {
+    this.kicked = true;
     this.addRepulsion(pos, strength);
     this.updatePosWVel();
     this.setBtnPos();
@@ -103,12 +116,54 @@ class targetButton {
     this.y += this.vel.y;
   }
 
-  fleeFromChasers(chasers: Chaser[]) {
-    for (const chaser of chasers) {
-      this.addRepulsion(chaser.pos, 10000); // Button flees from chasers too
+  fleeFromChasers(chaser: Chaser) {
+    if (!this.kicked) {
+      if (dist(chaser.pos, this.btnCenter) <= BUTTON_FLEEDIST) {
+        this.addRepulsion(chaser.pos, 10000); // Button flees from chasers too
+      }
+      this.updatePosWVel();
+      this.keepButtonOnScreen;
+      this.setBtnPos();
     }
-    this.updatePosWVel();
-    this.setBtnPos();
+  }
+
+  fleeFromObject(pos: Vec) {
+    if (!this.kicked) {
+      if (dist(mouse, this.btnCenter) <= BUTTON_FLEEDIST) {
+        this.addRepulsion(pos, 10000);
+      }
+    }
+  }
+
+  handleSpeed() {
+    const speed = Math.hypot(this.vel.x, this.vel.y);
+    if (this.kicked) {
+      if (speed > BUTTON_MAXSPEED) {
+        this.vel.x = shrink(this.vel.x, BUTTON_DRAG * 2);
+        this.vel.y = shrink(this.vel.y, BUTTON_DRAG * 2);
+      } else {
+        this.kicked = false;
+      }
+    } else {
+      if (speed > BUTTON_MAXSPEED) {
+        this.vel.x = (this.vel.x / speed) * BUTTON_MAXSPEED;
+        this.vel.y = (this.vel.y / speed) * BUTTON_MAXSPEED;
+      } else if (speed > 0) {
+        this.vel.x = shrink(this.vel.x, BUTTON_DRAG);
+        this.vel.y = shrink(this.vel.y, BUTTON_DRAG);
+      }
+    }
+  }
+
+  keepButtonOnScreen() {
+    this.x = Math.max(
+      0,
+      Math.min(globalThis.innerWidth - this.btnRect.width, this.x),
+    );
+    this.y = Math.max(
+      0,
+      Math.min(globalThis.innerHeight - this.btnRect.height, this.y),
+    );
   }
 
   update() {
@@ -118,14 +173,11 @@ class targetButton {
       y: this.y + this.btnRect.height / 2,
     };
 
-    this.addRepulsion(mouse, 20000);
+    this.fleeFromObject(mouse);
+    this.handleSpeed();
 
     this.updatePosWVel();
-
-    // Keep button on screen
-    this.x = Math.max(0, Math.min(globalThis.innerWidth - 100, this.x));
-    this.y = Math.max(0, Math.min(globalThis.innerHeight - 50, this.y));
-
+    this.keepButtonOnScreen();
     this.setBtnPos();
   }
 }
@@ -162,7 +214,7 @@ class Chaser {
       count++;
       counterEl.textContent = `Count: ${count}`;
       this.speed = CHASER_STARTSPEED;
-      this.btnToChase.kickBtn(mouse, 100000);
+      this.btnToChase.kickBtn(mouse, 1000000);
       // Chaser doesn't die just yet, this part could be useful later though
       // document.body.removeChild(this.el);
       // return true;
@@ -175,7 +227,7 @@ class Chaser {
 }
 
 const chasers: Chaser[] = [];
-let targetBtn = new targetButton("targetButton", "Click Me!");
+let targetBtn = new targetButton("targetButton", "Catch Me! 🚀");
 
 // Button interactions
 targetBtn.btn.addEventListener("click", () => {
@@ -199,6 +251,14 @@ chsrBtn.addEventListener("click", () => {
   }
 });
 
+// Debug Points Button
+document.addEventListener("keydown", (event) => {
+  if (event.key === "c") {
+    count += 20;
+  }
+  counterEl.textContent = `Count: ${count}`;
+});
+
 // Main Update Loop
 function update() {
   // Update target button
@@ -208,6 +268,7 @@ function update() {
   for (let i = chasers.length - 1; i >= 0; i--) {
     if (chasers[i].update()) {
       chasers.splice(i, 1);
+      targetBtn.fleeFromChasers(chasers[i]);
     }
   }
 

@@ -6,23 +6,31 @@ body {
 }
 #counter {
   position: absolute;
-  transform: translateX(-50%);
+  top: 1%;
   left: 50%;
+  transform: translate(-50%);
   justify-items: center;
-  /* top: 20px;
-  left: 20px; */
-  font-size: 24px;
+  font-size: 30px;
+  font-family:
+    "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
+    "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
   z-index: 10;
 }
 #chaserButton {
   position: absolute;
   padding: 15px;
-  background: #d63f20;
-  color: white;
+  bottom: 1%;
+  left: 50%;
+  transform: translate(-50%);
+  background: #f7ff1b;
+  color: black;
   border: none;
   cursor: pointer;
-  bottom: 20px;
-  left: 20px;
+}
+chaserbutton:disabled {
+  background-color: #cccccc; /* Grey background */
+  color: #666666; /* Darker grey text */
+  cursor: not-allowed; /* Change cursor to indicate it's not clickable */
 }
 .targetButton {
   position: absolute;
