@@ -1,6 +1,10 @@
 // deno-lint-ignore-file prefer-const
 import "./style.css";
 
+// Auto clicker buttons html spot
+// <div class ="autoclickerButtons">
+//     <button id="chaserButton">20 Spawn Chaser</button>
+// </div>
 document.body.innerHTML = `
 <!DOCTYPE html>
 <html lang="en">
@@ -10,8 +14,8 @@ document.body.innerHTML = `
 </head>
 <body>
   <div id="counter">Tags: 0</div>
-  <button id="chaserButton">-20 (Spawn Chaser)</button>
-  <script src="game.js"></script>
+  <button id="chaserButton">20 Spawn Chaser</button>
+  <button id="clickerButtons", class="clickerbuttons">10 Stealth Clicker 🥷</button>
 </body>
 </html>
 `;
@@ -31,15 +35,23 @@ let count = 0;
 let fps = 0;
 let fpsTimeStamps: number[] = [];
 
-//Increase per second for autoclicker
-//updated every time timer ends
+//Autoclicker tracking variables
+//updated every time timer reaches 0
 //timer starts at 60 frames per second to give calculator chance to propogate
 let timer: number = 60;
 let incrPerSec: number = 0;
 
+//Autoclicker base value
+//Used to calculate incrPerSec, wont add autoclicking until this is added to
+let autoAmnt = 0;
+
 const counterEl = document.getElementById("counter") as HTMLDivElement;
 const chsrBtn = document.getElementById("chaserButton") as HTMLButtonElement;
 chsrBtn.toggleAttribute("disabled");
+const sClckrBtn = document.getElementById(
+  "clickerButtons",
+) as HTMLButtonElement;
+sClckrBtn.toggleAttribute("disabled");
 
 // Utility: calculate frames per second
 const calculateFps = (): number => {
@@ -277,6 +289,14 @@ chsrBtn.addEventListener("click", () => {
   }
 });
 
+sClckrBtn.addEventListener("click", () => {
+  if (count >= 10) {
+    autoAmnt += 1;
+    addToCounter(-10);
+    sClckrBtn.textContent = "10 Stealth Clicker 🥷 (" + autoAmnt + ")";
+  }
+});
+
 // Debug Points Button
 document.addEventListener("keydown", (event) => {
   if (event.key === "c") {
@@ -290,7 +310,7 @@ function update() {
   console.log(fps);
 
   if (timer <= 0) {
-    incrPerSec = 1 / fps;
+    incrPerSec = autoAmnt / fps;
     timer = fps;
   }
   timer--;
@@ -298,6 +318,16 @@ function update() {
 
   // Update target button
   targetBtn.update();
+
+  if (count >= 10) {
+    if (sClckrBtn.hasAttribute("disabled")) {
+      sClckrBtn.toggleAttribute("disabled");
+    }
+  } else {
+    if (!sClckrBtn.hasAttribute("disabled")) {
+      sClckrBtn.toggleAttribute("disabled");
+    }
+  }
 
   // Update chasers
   for (let i = chasers.length - 1; i >= 0; i--) {
