@@ -19,6 +19,7 @@ document.body.innerHTML = `
 const BUTTON_MAXSPEED: number = 2;
 const BUTTON_DRAG: number = 0.1;
 const BUTTON_FLEEDIST: number = 300;
+
 const CHASER_STARTSPEED: number = 1;
 const CHASER_MAXSPEED: number = 6;
 const CHASER_ACCEL: number = 0.1;
@@ -26,12 +27,37 @@ const CHASER_ACCEL: number = 0.1;
 //Point counter for main resource
 let count = 0;
 
+//Variables for calculating fps
+let fps = 0;
+let fpsTimeStamps: number[] = [];
+
+//Increase per second for autoclicker
+//updated every time timer ends
+//timer starts at 60 frames per second to give calculator chance to propogate
+let timer: number = 60;
+let incrPerSec: number = 0;
+
 const counterEl = document.getElementById("counter") as HTMLDivElement;
 const chsrBtn = document.getElementById("chaserButton") as HTMLButtonElement;
 chsrBtn.toggleAttribute("disabled");
 
+// Utility: calculate frames per second
+const calculateFps = (): number => {
+  const now: number = performance.now();
+  while (fpsTimeStamps.length > 0 && fpsTimeStamps[0] <= now - 1000) {
+    fpsTimeStamps.shift();
+  }
+  fpsTimeStamps.push(now);
+
+  // The number of timestamps in the array represents the FPS
+  return fpsTimeStamps.length;
+};
+
 // Utility: distance between two points
 const dist = (a: Vec, b: Vec) => Math.hypot(a.x - b.x, a.y - b.y);
+
+// Utility: truncate to two decimal points
+// const trunc2Dec = (num: number): number => Math.trunc(num * 100) / 100;
 
 // Utility: shrink "val" towards 0 by "amount" without passing it
 const shrink = (val: number, amount: number): number => {
@@ -48,7 +74,7 @@ const shrink = (val: number, amount: number): number => {
 // Utility: update counter by adding step to count
 const addToCounter = (step: number) => {
   count += step;
-  counterEl.textContent = `Tags: ${count}`;
+  counterEl.textContent = "Tags: " + count.toFixed(2);
 };
 
 type Vec = { x: number; y: number };
@@ -69,9 +95,6 @@ class targetButton {
   kicked: boolean;
 
   constructor(buttonElem: string, buttonText: string) {
-    // this.btn = document.getElementById(
-    //   buttonElem,
-    // ) as HTMLButtonElement;
     this.btn = document.createElement("button");
     this.btn.id = buttonElem;
     this.btn.classList.add(buttonElem);
@@ -261,11 +284,18 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
-// Increases counter with set interval
-setInterval(addToCounter, 1000, 1);
-
 // Main Update Loop
 function update() {
+  fps = calculateFps();
+  console.log(fps);
+
+  if (timer <= 0) {
+    incrPerSec = 1 / fps;
+    timer = fps;
+  }
+  timer--;
+  addToCounter(incrPerSec);
+
   // Update target button
   targetBtn.update();
 
