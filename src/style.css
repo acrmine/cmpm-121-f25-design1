@@ -46,14 +46,16 @@ body {
 .clckrbtngroup {
   display: flex;
 }
+/* Must add a new id to these two fields to add a new upgrade */
 #stlthtag1, #stlthtag2, #stlthtag3 {
   padding: 15px;
-  background: green;
+  background: rgb(54, 163, 54);
   color: black;
   border: none;
   border-radius: 6px;
   margin: 10px 10px 20px;
   cursor: pointer;
+  transition: transform 0.2s ease;
 }
 #stlthtag1:disabled, #stlthtag2:disabled, #stlthtag3:disabled {
   background-color: #cccccc;
@@ -63,12 +65,38 @@ body {
 .targetButton {
   position: absolute;
   padding: 15px;
-  background: brown;
+  background: rgb(209, 58, 58);
   color: white;
   border: none;
+  border-radius: 3px;
   cursor: pointer;
   transition: transform 0.1s;
   z-index: 5;
+}
+@keyframes targetbounce {
+  0% {
+    transform: scale(1);
+  }
+  25% {
+    rotate: -5deg;
+  }
+  50% {
+    transform: scale(0.9);
+    rotate: 0deg;
+  }
+  75% {
+    rotate: 5deg;
+  }
+  100% {
+    transform: scale(1);
+    rotate: 0deg;
+  }
+}
+.targetButton:hover {
+  background: rgb(152, 17, 17);
+}
+.targetButton:active {
+  animation: targetbounce 0.2s ease-in-out;
 }
 .chaser {
   position: absolute;

@@ -99,6 +99,11 @@ const dist = (a: Vec, b: Vec) => Math.hypot(a.x - b.x, a.y - b.y);
 // Utility: truncate to two decimal points
 // const trunc2Dec = (num: number): number => Math.trunc(num * 100) / 100;
 
+// Utility: sleep for a duration
+const sleep = (ms: number) => {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+};
+
 // Utility: shrink "val" towards 0 by "amount" without passing it
 const shrink = (val: number, amount: number): number => {
   if (val !== 0) {
@@ -284,19 +289,51 @@ class ClickUpgrade {
           this.cost;
         growthCounter.innerText = "Tag Rate: " + autoAmnt.toFixed(1) +
           " tgs/sec";
+        this.clickAnimation(0.2);
       }
     });
+
+    this.btn.addEventListener("mouseenter", () => {
+      if (!this.btn.hasAttribute("disabled")) {
+        this.btn.style.backgroundColor = "green";
+        this.btn.style.transform = "scale(0.95)";
+      }
+    });
+
+    this.btn.addEventListener("mouseleave", () => {
+      if (this.btn.hasAttribute("disabled")) {
+        this.btn.style.backgroundColor = "#cccccc";
+      } else {
+        this.btn.style.backgroundColor = "rgb(54, 163, 54)";
+      }
+      this.btn.style.transform = "scale(1.0)";
+    });
+  }
+
+  async clickAnimation(duration: number) {
+    let step = duration / 2;
+    step *= 1000;
+    this.btn.style.backgroundColor = "green";
+    this.btn.style.transform = "scale(0.95)";
+    await sleep(step);
+    this.btn.style.backgroundColor = "rgb(0, 179, 0)";
+    this.btn.style.transform = "scale(1.25)";
+    await sleep(step);
+    this.btn.style.backgroundColor = "rgb(54, 163, 54)";
+    this.btn.style.transform = "scale(1)";
   }
 
   update() {
     if (count >= this.cost) {
       if (this.btn.hasAttribute("disabled")) {
         this.btn.toggleAttribute("disabled");
+        this.btn.style.backgroundColor = "rgb(54, 163, 54)";
       }
     } else {
       if (!this.btn.hasAttribute("disabled")) {
         this.btn.toggleAttribute("disabled");
       }
+      this.btn.style.backgroundColor = "#cccccc";
     }
   }
 }
