@@ -1,8 +1,10 @@
 body {
-  margin: 0;
+  display: flex;
+  height: 100vh;
   overflow: hidden;
   font-family: Arial, sans-serif;
-  cursor: none;
+  justify-content: center;
+  align-items: end;
 }
 #counter {
   position: absolute;
@@ -16,47 +18,44 @@ body {
     "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
   z-index: 10;
 }
+#autoclckrstats {
+  position: absolute;
+  top: 60px;
+  left: 50%;
+  color: rgb(0, 190, 0);
+  transform: translate(-50%);
+  justify-items: center;
+  font-size: 18px;
+  font-family:
+    "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
+    "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+  z-index: 10;
+}
 #chaserButton {
   position: absolute;
-  display: none;
-  padding: 15px;
   left: 40%;
   bottom: 1%;
+  display: none;
+  padding: 15px;
   transform: translate(-50%);
   background: #f7ff1b;
   color: black;
   border: none;
   cursor: pointer;
 }
-/* autoclickerbuttons {
-  background-color: #04aa6d;
-  border: none;
-  color: black;
+.clckrbtngroup {
+  display: flex;
+}
+#stlthtag1, #stlthtag2, #stlthtag3 {
   padding: 15px;
-  left: 50%;
-  bottom: 30%;
-  cursor: pointer;
-  float: left;
-} */
-.clickerbuttons {
-  position: absolute;
-  display: block;
-  padding: 15px;
-  transform: translate(-50%);
-  left: 50%;
-  bottom: 1%;
   background: green;
   color: black;
   border: none;
   border-radius: 6px;
+  margin: 10px 10px 20px;
   cursor: pointer;
 }
-.clickerbuttons:disabled {
-  background-color: #cccccc;
-  color: #666666;
-  cursor: not-allowed;
-}
-.chaserButton:disabled {
+#stlthtag1:disabled, #stlthtag2:disabled, #stlthtag3:disabled {
   background-color: #cccccc;
   color: #666666;
   cursor: not-allowed;
@@ -64,7 +63,7 @@ body {
 .targetButton {
   position: absolute;
   padding: 15px;
-  background: green;
+  background: brown;
   color: white;
   border: none;
   cursor: pointer;

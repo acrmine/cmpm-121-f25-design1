@@ -14,11 +14,18 @@ document.body.innerHTML = `
 </head>
 <body>
   <div id="counter">Tags: 0</div>
+  <div id="autoclckrstats">Tag Rate: 0 tgs/sec</div>
   <button id="chaserButton">20 Spawn Chaser</button>
-  <button id="clickerButtons", class="clickerbuttons">10 Stealth Clicker 🥷</button>
 </body>
 </html>
 `;
+
+interface Upgrade {
+  name: string;
+  cssID: string;
+  cost: number;
+  rate: number;
+}
 
 const BUTTON_MAXSPEED: number = 2;
 const BUTTON_DRAG: number = 0.1;
@@ -27,6 +34,27 @@ const BUTTON_FLEEDIST: number = 300;
 const CHASER_STARTSPEED: number = 1;
 const CHASER_MAXSPEED: number = 6;
 const CHASER_ACCEL: number = 0.1;
+
+const upgradeItems: Upgrade[] = [
+  {
+    name: "Stealth Tagger 🥷",
+    cssID: "stlthtag1",
+    cost: 10,
+    rate: 0.1,
+  },
+  {
+    name: "🥷🥷 Group of Stealth Taggers 🥷🥷",
+    cssID: "stlthtag2",
+    cost: 100,
+    rate: 2.0,
+  },
+  {
+    name: "A Really Good Stealth Tagger 🔫🥷🏻",
+    cssID: "stlthtag3",
+    cost: 1000,
+    rate: 50.0,
+  },
+];
 
 //Point counter for main resource
 let count = 0;
@@ -46,12 +74,11 @@ let incrPerSec: number = 0;
 let autoAmnt = 0;
 
 const counterEl = document.getElementById("counter") as HTMLDivElement;
+const growthCounter = document.getElementById(
+  "autoclckrstats",
+) as HTMLDivElement;
 const chsrBtn = document.getElementById("chaserButton") as HTMLButtonElement;
 chsrBtn.toggleAttribute("disabled");
-const sClckrBtn = document.getElementById(
-  "clickerButtons",
-) as HTMLButtonElement;
-sClckrBtn.toggleAttribute("disabled");
 
 // Utility: calculate frames per second
 const calculateFps = (): number => {
@@ -65,6 +92,7 @@ const calculateFps = (): number => {
   return fpsTimeStamps.length;
 };
 
+//gonna murder the auto formatter
 // Utility: distance between two points
 const dist = (a: Vec, b: Vec) => Math.hypot(a.x - b.x, a.y - b.y);
 
@@ -223,6 +251,80 @@ class targetButton {
   }
 }
 
+class ClickUpgrade {
+  btn: HTMLElement;
+  name: string;
+  cost: number;
+  rate: number;
+  amnt: number;
+
+  constructor(
+    name: string,
+    cssID: string,
+    cost: number,
+    rate: number,
+  ) {
+    this.name = name;
+    this.cost = cost;
+    this.rate = rate;
+    this.btn = document.createElement("button");
+    this.btn.className = "clckrbtngroup";
+    this.btn.id = cssID;
+    document.body.appendChild(this.btn);
+
+    this.amnt = 0;
+    this.btn.innerHTML = name + "<br>(" + this.amnt + ") Cost: " + this.cost;
+
+    this.btn.addEventListener("click", () => {
+      if (count >= cost) {
+        addToCounter(-cost);
+        this.amnt += 1;
+        autoAmnt += rate;
+        this.btn.innerHTML = name + "<br>(" + this.amnt + ") Cost: " +
+          this.cost;
+        growthCounter.innerText = "Tag Rate: " + autoAmnt.toFixed(1) +
+          " tgs/sec";
+      }
+    });
+  }
+
+  update() {
+    if (count >= this.cost) {
+      if (this.btn.hasAttribute("disabled")) {
+        this.btn.toggleAttribute("disabled");
+      }
+    } else {
+      if (!this.btn.hasAttribute("disabled")) {
+        this.btn.toggleAttribute("disabled");
+      }
+    }
+  }
+}
+
+let activeUpgrds: ClickUpgrade[] = [];
+
+// initialize everything in the upgrades object
+function initUpgrds() {
+  for (let item of upgradeItems) {
+    activeUpgrds.push(
+      new ClickUpgrade(
+        item.name,
+        item.cssID,
+        item.cost,
+        item.rate,
+      ),
+    );
+  }
+  for (let item of activeUpgrds) {
+    item.btn.style.justifyContent = "center";
+  }
+  // let upgrdGroup = document.getElementById("clckrbtngroup") as HTMLElement;
+  // let W = upgrdGroup.getBoundingClientRect().width;
+  // upgrdGroup.style.left = ((globalThis.innerWidth / 2) - (W / 2)) + "px";
+}
+
+initUpgrds();
+
 // Chaser class
 class Chaser {
   pos: Vec;
@@ -289,14 +391,6 @@ chsrBtn.addEventListener("click", () => {
   }
 });
 
-sClckrBtn.addEventListener("click", () => {
-  if (count >= 10) {
-    autoAmnt += 1;
-    addToCounter(-10);
-    sClckrBtn.textContent = "10 Stealth Clicker 🥷 (" + autoAmnt + ")";
-  }
-});
-
 // Debug Points Button
 document.addEventListener("keydown", (event) => {
   if (event.key === "c") {
@@ -319,22 +413,17 @@ function update() {
   // Update target button
   targetBtn.update();
 
-  if (count >= 10) {
-    if (sClckrBtn.hasAttribute("disabled")) {
-      sClckrBtn.toggleAttribute("disabled");
-    }
-  } else {
-    if (!sClckrBtn.hasAttribute("disabled")) {
-      sClckrBtn.toggleAttribute("disabled");
-    }
-  }
-
   // Update chasers
   for (let i = chasers.length - 1; i >= 0; i--) {
     if (chasers[i].update()) {
       chasers.splice(i, 1);
       targetBtn.fleeFromChasers(chasers[i]);
     }
+  }
+
+  // Update Upgrade Buttons
+  for (let item of activeUpgrds) {
+    item.update();
   }
 
   requestAnimationFrame(update);
