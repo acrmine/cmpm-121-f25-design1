@@ -96,7 +96,7 @@ body {
   background: rgb(152, 17, 17);
 }
 .targetButton:active {
-  animation: targetbounce 0.2s ease-in-out;
+  animation: targetbounce 0.1s ease-in-out;
 }
 .chaser {
   position: absolute;

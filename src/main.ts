@@ -35,6 +35,8 @@ const CHASER_STARTSPEED: number = 1;
 const CHASER_MAXSPEED: number = 6;
 const CHASER_ACCEL: number = 0.1;
 
+const COST_INCR_RATE = 1.15;
+
 const upgradeItems: Upgrade[] = [
   {
     name: "Stealth Tagger 🥷",
@@ -281,12 +283,13 @@ class ClickUpgrade {
     this.btn.innerHTML = name + "<br>(" + this.amnt + ") Cost: " + this.cost;
 
     this.btn.addEventListener("click", () => {
-      if (count >= cost) {
-        addToCounter(-cost);
+      if (count >= this.cost) {
+        addToCounter(-this.cost);
+        this.cost *= COST_INCR_RATE;
         this.amnt += 1;
         autoAmnt += rate;
         this.btn.innerHTML = name + "<br>(" + this.amnt + ") Cost: " +
-          this.cost;
+          this.cost.toFixed(2);
         growthCounter.innerText = "Tag Rate: " + autoAmnt.toFixed(1) +
           " tgs/sec";
         this.clickAnimation(0.2);
