@@ -22,6 +22,7 @@ document.body.innerHTML = `
 
 interface Upgrade {
   name: string;
+  description: string;
   cssID: string;
   cost: number;
   rate: number;
@@ -40,21 +41,39 @@ const COST_INCR_RATE = 1.15;
 const upgradeItems: Upgrade[] = [
   {
     name: "Stealth Tagger 🥷",
+    description: "Tags from the shadows",
     cssID: "stlthtag1",
     cost: 10,
     rate: 0.1,
   },
   {
     name: "🥷🥷 Group of Stealth Taggers 🥷🥷",
+    description:
+      "Tag team... or team tagging... I don't know, they're better though",
     cssID: "stlthtag2",
     cost: 100,
     rate: 2.0,
   },
   {
     name: "A Really Good Stealth Tagger 🔫🥷🏻",
+    description: "Trained at the craft",
     cssID: "stlthtag3",
     cost: 1000,
     rate: 50.0,
+  },
+  {
+    name: "🔫🥷🏻 Couple-a Really Good Stealth Taggers 🔫🥷🏻",
+    description: "Some of the best",
+    cssID: "stlthtag4",
+    cost: 10000,
+    rate: 1500.0,
+  },
+  {
+    name: "🥷🏻🥷🏻🥷🏻🥷🏻🥷🏻🥷🏻🥷🏻🥷🏻<br>Council of Stealth Taggers",
+    description: "They have spoken, that button will know fear",
+    cssID: "stlthtag5",
+    cost: 1000000,
+    rate: 52500.0,
   },
 ];
 
@@ -267,6 +286,7 @@ class ClickUpgrade {
 
   constructor(
     name: string,
+    description: string,
     cssID: string,
     cost: number,
     rate: number,
@@ -277,6 +297,7 @@ class ClickUpgrade {
     this.btn = document.createElement("button");
     this.btn.className = "clckrbtngroup";
     this.btn.id = cssID;
+    this.btn.title = description;
     document.body.appendChild(this.btn);
 
     this.amnt = 0;
@@ -349,6 +370,7 @@ function initUpgrds() {
     activeUpgrds.push(
       new ClickUpgrade(
         item.name,
+        item.description,
         item.cssID,
         item.cost,
         item.rate,
