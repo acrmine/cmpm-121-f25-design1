@@ -34,6 +34,7 @@ interface Upgrade {
   cssID: string;
   cost: number;
   rate: number;
+  type: string;
 }
 
 // Button that you click to gain tags, runs away from you when mouse gets close
@@ -41,6 +42,7 @@ class targetButton {
   btn: HTMLButtonElement;
   x: number;
   y: number;
+  clickVal: number;
   vel: Vec;
   btnRect: DOMRect;
   btnCenter: Vec;
@@ -53,6 +55,7 @@ class targetButton {
     this.btn.textContent = buttonText;
     this.x = globalThis.innerWidth / 2;
     this.y = globalThis.innerHeight / 2;
+    this.clickVal = 1;
     this.vel = { x: 0, y: 0 };
     document.body.appendChild(this.btn);
     this.setBtnPos();
@@ -169,6 +172,7 @@ class ClickUpgrade {
   cost: number;
   rate: number;
   amnt: number;
+  type: string;
 
   constructor(
     name: string,
@@ -176,10 +180,13 @@ class ClickUpgrade {
     cssID: string,
     cost: number,
     rate: number,
+    type: string,
   ) {
     this.name = name;
     this.cost = cost;
     this.rate = rate;
+    this.type = type;
+
     this.btn = document.createElement("button");
     this.btn.className = "clckrbtngroup";
     this.btn.id = cssID;
@@ -194,7 +201,11 @@ class ClickUpgrade {
         addToCounter(-this.cost);
         this.cost *= COST_INCR_RATE;
         this.amnt += 1;
-        autoAmnt += rate;
+        if (this.type === "clickPwr") {
+          targetBtn.clickVal += rate;
+        } else {
+          autoAmnt += rate;
+        }
         this.btn.innerHTML = name + "<br>(" + this.amnt + ") Cost: " +
           this.cost.toFixed(2);
         growthCounter.innerText = "Tag Rate: " + autoAmnt.toFixed(1) +
@@ -293,19 +304,28 @@ class Chaser {
 
 const upgradeItems: Upgrade[] = [
   {
+    name: "🔥More Tag Power🔥",
+    description: "The strongest tagger",
+    cssID: "pwrtag1",
+    cost: 100,
+    rate: 1.0,
+    type: "clickPwr",
+  },
+  {
     name: "Stealth Tagger 🥷",
     description: "Tags from the shadows",
     cssID: "stlthtag1",
     cost: 10,
     rate: 0.1,
+    type: "auto",
   },
   {
     name: "🥷🥷 Group of Stealth Taggers 🥷🥷",
-    description:
-      "Tag team... or team tagging... I don't know, they're better though",
+    description: "Tag team... or team tagging... I don't know, they're better though",
     cssID: "stlthtag2",
     cost: 100,
     rate: 2.0,
+    type: "auto",
   },
   {
     name: "A Really Good Stealth Tagger 🔫🥷🏻",
@@ -313,6 +333,7 @@ const upgradeItems: Upgrade[] = [
     cssID: "stlthtag3",
     cost: 1000,
     rate: 50.0,
+    type: "auto",
   },
   {
     name: "🔫🥷🏻 Couple-a Really Good Stealth Taggers 🔫🥷🏻",
@@ -320,6 +341,7 @@ const upgradeItems: Upgrade[] = [
     cssID: "stlthtag4",
     cost: 10000,
     rate: 1500.0,
+    type: "auto",
   },
   {
     name: "🥷🏻🥷🏻🥷🏻🥷🏻🥷🏻🥷🏻🥷🏻🥷🏻<br>Council of Stealth Taggers",
@@ -327,6 +349,7 @@ const upgradeItems: Upgrade[] = [
     cssID: "stlthtag5",
     cost: 1000000,
     rate: 52500.0,
+    type: "auto",
   },
 ];
 
@@ -391,6 +414,22 @@ const addToCounter = (step: number) => {
   counterEl.textContent = "Tags: " + count.toFixed(2);
 };
 
+/* benho612's floaty text spawner */
+// Utility: spawn text that floats up and disappears
+const spawnFloaty = (text: string, x: number, y: number) => {
+  const floatyText = document.createElement("div");
+  floatyText.className = "floaty";
+  floatyText.textContent = text;
+
+  floatyText.style.left = `${x}px`;
+  floatyText.style.top = `${y}px`;
+  floatyText.style.zIndex = "50";
+
+  document.body.appendChild(floatyText);
+  floatyText.addEventListener("animationend", () => floatyText.remove());
+};
+/* benho612's floaty text spawner */
+
 // Mouse position
 let mouse: Vec = { x: 0, y: 0 };
 document.addEventListener("mousemove", (e) => {
@@ -409,6 +448,7 @@ function initUpgrds() {
         item.cssID,
         item.cost,
         item.rate,
+        item.type,
       ),
     );
   }
@@ -427,7 +467,8 @@ let targetBtn = new targetButton("targetButton", "Catch Me! 🚀");
 
 // Button interactions
 targetBtn.btn.addEventListener("click", () => {
-  addToCounter(1);
+  addToCounter(targetBtn.clickVal);
+  spawnFloaty(targetBtn.clickVal.toFixed(2), mouse.x, mouse.y);
 
   // Reset button speed on click
   targetBtn.vel.x = 0;

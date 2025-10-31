@@ -9,9 +9,13 @@ Really want to have an autoclicker that chases the button around the screen as w
 - Tried to give the chasers a kick but their chasing was already a little broken and I still hadn't thought of a way for the button to escape corners
 - Scrapped the chasers concept for the meantime to make a button that fit the requirements
 
-## What I still need to do
+## Where the project is now
 
-- Fix kick effect so that if button is stuck in corner, it jumps past the chaser or mouse that's clicking
-- add teleport kicker for a more consistent type of clicking that still has a physical effect
-- Make main click button and counter look cool
-- put together readouts for each auto clicker you have as well as average clicks(tags) per second
+- I've taken the upgrade system as far as I want it to go for now. The chasers will probably also not be improved more
+
+## Changes from other projects I'm going to add
+
+- I really like the mambo studio by benho612 thing where the amount of units you get from a click shows up in a little label that goes up and disappears
+  - link: <https://github.com/benho612/CMPM1212-D1-Assignement>
+- I like QuestionMark-128s extra upgrade where you can upgrade how much your click does, I want to add something for that as well
+  - link: <https://questionmark-128.github.io/AidenLe-D1-IncrementalGame>

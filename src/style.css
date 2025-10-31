@@ -45,7 +45,7 @@ body {
   font-family: "Orbitron", sans-serif;
 }
 /* Must add a new id to these two fields to add a new upgrade */
-#stlthtag1, #stlthtag2, #stlthtag3, #stlthtag4, #stlthtag5 {
+#pwrtag1, #stlthtag1, #stlthtag2, #stlthtag3, #stlthtag4, #stlthtag5 {
   padding: 15px;
   background: rgb(54, 163, 54);
   color: black;
@@ -55,6 +55,7 @@ body {
   cursor: pointer;
   transition: transform 0.2s ease;
 }
+#pwrtag1:disabled,
 #stlthtag1:disabled,
 #stlthtag2:disabled,
 #stlthtag3:disabled,
@@ -108,3 +109,28 @@ body {
   border-radius: 5px;
   transition: transform 0s;
 }
+
+/* benho612's floaty text styling and animation */
+.floaty {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translate(-50%, -50%);
+  font-weight: 700;
+  user-select: none;
+  pointer-events: none;
+  opacity: 1;
+  animation: floaty-rise 750ms ease-out forwards;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+@keyframes floaty-rise {
+  0% {
+    transform: translate(-50%, -20%);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -120%);
+    opacity: 0;
+  }
+}
+/* benho612's floaty text styling and animation */
