@@ -16,14 +16,6 @@ document.body.innerHTML = `
 </html>
 `;
 
-interface Upgrade {
-  name: string;
-  description: string;
-  cssID: string;
-  cost: number;
-  rate: number;
-}
-
 const BUTTON_MAXSPEED: number = 2;
 const BUTTON_DRAG: number = 0.1;
 const BUTTON_FLEEDIST: number = 300;
@@ -34,113 +26,15 @@ const CHASER_ACCEL: number = 0.1;
 
 const COST_INCR_RATE = 1.15;
 
-const upgradeItems: Upgrade[] = [
-  {
-    name: "Stealth Tagger 🥷",
-    description: "Tags from the shadows",
-    cssID: "stlthtag1",
-    cost: 10,
-    rate: 0.1,
-  },
-  {
-    name: "🥷🥷 Group of Stealth Taggers 🥷🥷",
-    description:
-      "Tag team... or team tagging... I don't know, they're better though",
-    cssID: "stlthtag2",
-    cost: 100,
-    rate: 2.0,
-  },
-  {
-    name: "A Really Good Stealth Tagger 🔫🥷🏻",
-    description: "Trained at the craft",
-    cssID: "stlthtag3",
-    cost: 1000,
-    rate: 50.0,
-  },
-  {
-    name: "🔫🥷🏻 Couple-a Really Good Stealth Taggers 🔫🥷🏻",
-    description: "Some of the best",
-    cssID: "stlthtag4",
-    cost: 10000,
-    rate: 1500.0,
-  },
-  {
-    name: "🥷🏻🥷🏻🥷🏻🥷🏻🥷🏻🥷🏻🥷🏻🥷🏻<br>Council of Stealth Taggers",
-    description: "They have spoken, that button will know fear",
-    cssID: "stlthtag5",
-    cost: 1000000,
-    rate: 52500.0,
-  },
-];
-
-//Point counter for main resource
-let count = 0;
-
-//Variables for calculating fps
-let fps = 0;
-let fpsTimeStamps: number[] = [];
-
-//updated every time timer reaches 0
-//timer starts at 60 frames per second to give calculator chance to propogate
-let timer: number = 60;
-let incrPerSec: number = 0;
-
-//Autoclicker base value
-//Used to calculate incrPerSec, wont add autoclicking until this is added to
-let autoAmnt = 0;
-
-const counterEl = document.getElementById("counter") as HTMLDivElement;
-const growthCounter = document.getElementById(
-  "autoclckrstats",
-) as HTMLDivElement;
-const chsrBtn = document.getElementById("chaserButton") as HTMLButtonElement;
-chsrBtn.toggleAttribute("disabled");
-
-// Utility: calculate frames per second
-const calculateFps = (): number => {
-  const now: number = performance.now();
-  while (fpsTimeStamps.length > 0 && fpsTimeStamps[0] <= now - 1000) {
-    fpsTimeStamps.shift();
-  }
-  fpsTimeStamps.push(now);
-
-  // The number of timestamps in the array represents the FPS
-  return fpsTimeStamps.length;
-};
-
-// Utility: distance between two points
-const dist = (a: Vec, b: Vec) => Math.hypot(a.x - b.x, a.y - b.y);
-
-// Utility: sleep for a duration
-const sleep = (ms: number) => {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-};
-
-// Utility: shrink "val" towards 0 by "amount" without passing it
-const shrink = (val: number, amount: number): number => {
-  if (val !== 0) {
-    if (val > 0) {
-      return Math.max(0, val - amount);
-    } else if (val < 0) {
-      return Math.min(0, val + amount);
-    }
-  }
-  return val;
-};
-
-// Utility: update counter by adding step to count
-const addToCounter = (step: number) => {
-  count += step;
-  counterEl.textContent = "Tags: " + count.toFixed(2);
-};
-
 type Vec = { x: number; y: number };
 
-// Mouse position
-let mouse: Vec = { x: 0, y: 0 };
-document.addEventListener("mousemove", (e) => {
-  mouse = { x: e.clientX, y: e.clientY };
-});
+interface Upgrade {
+  name: string;
+  description: string;
+  cssID: string;
+  cost: number;
+  rate: number;
+}
 
 // Button that you click to gain tags, runs away from you when mouse gets close
 class targetButton {
@@ -354,32 +248,7 @@ class ClickUpgrade {
   }
 }
 
-let activeUpgrds: ClickUpgrade[] = [];
-
-// initialize everything in the upgrades object
-function initUpgrds() {
-  for (let item of upgradeItems) {
-    activeUpgrds.push(
-      new ClickUpgrade(
-        item.name,
-        item.description,
-        item.cssID,
-        item.cost,
-        item.rate,
-      ),
-    );
-  }
-  for (let item of activeUpgrds) {
-    item.btn.style.justifyContent = "center";
-  }
-  // let upgrdGroup = document.getElementById("clckrbtngroup") as HTMLElement;
-  // let W = upgrdGroup.getBoundingClientRect().width;
-  // upgrdGroup.style.left = ((globalThis.innerWidth / 2) - (W / 2)) + "px";
-}
-
-initUpgrds();
-
-// Chaser class
+// Div element that chases target button around and tags it, not yet complete
 class Chaser {
   pos: Vec;
   speed: number;
@@ -421,6 +290,137 @@ class Chaser {
     return false;
   }
 }
+
+const upgradeItems: Upgrade[] = [
+  {
+    name: "Stealth Tagger 🥷",
+    description: "Tags from the shadows",
+    cssID: "stlthtag1",
+    cost: 10,
+    rate: 0.1,
+  },
+  {
+    name: "🥷🥷 Group of Stealth Taggers 🥷🥷",
+    description:
+      "Tag team... or team tagging... I don't know, they're better though",
+    cssID: "stlthtag2",
+    cost: 100,
+    rate: 2.0,
+  },
+  {
+    name: "A Really Good Stealth Tagger 🔫🥷🏻",
+    description: "Trained at the craft",
+    cssID: "stlthtag3",
+    cost: 1000,
+    rate: 50.0,
+  },
+  {
+    name: "🔫🥷🏻 Couple-a Really Good Stealth Taggers 🔫🥷🏻",
+    description: "Some of the best",
+    cssID: "stlthtag4",
+    cost: 10000,
+    rate: 1500.0,
+  },
+  {
+    name: "🥷🏻🥷🏻🥷🏻🥷🏻🥷🏻🥷🏻🥷🏻🥷🏻<br>Council of Stealth Taggers",
+    description: "They have spoken, that button will know fear",
+    cssID: "stlthtag5",
+    cost: 1000000,
+    rate: 52500.0,
+  },
+];
+
+//Point counter for main resource
+let count = 0;
+
+//Variables for calculating fps
+let fps = 0;
+let fpsTimeStamps: number[] = [];
+
+//updated every time timer reaches 0
+//timer starts at 60 frames per second to give calculator chance to propogate
+let timer: number = 60;
+let incrPerSec: number = 0;
+
+//Autoclicker base value
+//Used to calculate incrPerSec, wont add autoclicking until this is added to
+let autoAmnt = 0;
+
+const counterEl = document.getElementById("counter") as HTMLDivElement;
+const growthCounter = document.getElementById(
+  "autoclckrstats",
+) as HTMLDivElement;
+const chsrBtn = document.getElementById("chaserButton") as HTMLButtonElement;
+chsrBtn.toggleAttribute("disabled");
+
+// Utility: calculate frames per second
+const calculateFps = (): number => {
+  const now: number = performance.now();
+  while (fpsTimeStamps.length > 0 && fpsTimeStamps[0] <= now - 1000) {
+    fpsTimeStamps.shift();
+  }
+  fpsTimeStamps.push(now);
+
+  // The number of timestamps in the array represents the FPS
+  return fpsTimeStamps.length;
+};
+
+// Utility: distance between two points
+const dist = (a: Vec, b: Vec) => Math.hypot(a.x - b.x, a.y - b.y);
+
+// Utility: sleep for a duration
+const sleep = (ms: number) => {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+};
+
+// Utility: shrink "val" towards 0 by "amount" without passing it
+const shrink = (val: number, amount: number): number => {
+  if (val !== 0) {
+    if (val > 0) {
+      return Math.max(0, val - amount);
+    } else if (val < 0) {
+      return Math.min(0, val + amount);
+    }
+  }
+  return val;
+};
+
+// Utility: update counter by adding step to count
+const addToCounter = (step: number) => {
+  count += step;
+  counterEl.textContent = "Tags: " + count.toFixed(2);
+};
+
+// Mouse position
+let mouse: Vec = { x: 0, y: 0 };
+document.addEventListener("mousemove", (e) => {
+  mouse = { x: e.clientX, y: e.clientY };
+});
+
+let activeUpgrds: ClickUpgrade[] = [];
+
+// initialize everything in the upgrades object
+function initUpgrds() {
+  for (let item of upgradeItems) {
+    activeUpgrds.push(
+      new ClickUpgrade(
+        item.name,
+        item.description,
+        item.cssID,
+        item.cost,
+        item.rate,
+      ),
+    );
+  }
+  for (let item of activeUpgrds) {
+    item.btn.style.justifyContent = "center";
+  }
+  // let upgrdGroup = document.getElementById("clckrbtngroup") as HTMLElement;
+  // let W = upgrdGroup.getBoundingClientRect().width;
+  // upgrdGroup.style.left = ((globalThis.innerWidth / 2) - (W / 2)) + "px";
+}
+
+initUpgrds();
 
 const chasers: Chaser[] = [];
 let targetBtn = new targetButton("targetButton", "Catch Me! 🚀");
