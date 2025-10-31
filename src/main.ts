@@ -1,10 +1,6 @@
 // deno-lint-ignore-file prefer-const
 import "./style.css";
 
-// Auto clicker buttons html spot
-// <div class ="autoclickerButtons">
-//     <button id="chaserButton">20 Spawn Chaser</button>
-// </div>
 document.body.innerHTML = `
 <!DOCTYPE html>
 <html lang="en">
@@ -84,7 +80,6 @@ let count = 0;
 let fps = 0;
 let fpsTimeStamps: number[] = [];
 
-//Autoclicker tracking variables
 //updated every time timer reaches 0
 //timer starts at 60 frames per second to give calculator chance to propogate
 let timer: number = 60;
@@ -113,12 +108,8 @@ const calculateFps = (): number => {
   return fpsTimeStamps.length;
 };
 
-//gonna murder the auto formatter
 // Utility: distance between two points
 const dist = (a: Vec, b: Vec) => Math.hypot(a.x - b.x, a.y - b.y);
-
-// Utility: truncate to two decimal points
-// const trunc2Dec = (num: number): number => Math.trunc(num * 100) / 100;
 
 // Utility: sleep for a duration
 const sleep = (ms: number) => {
@@ -151,6 +142,7 @@ document.addEventListener("mousemove", (e) => {
   mouse = { x: e.clientX, y: e.clientY };
 });
 
+// Button that you click to gain tags, runs away from you when mouse gets close
 class targetButton {
   btn: HTMLButtonElement;
   x: number;

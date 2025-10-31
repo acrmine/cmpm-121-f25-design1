@@ -1,0 +1,4 @@
+// Auto clicker buttons html spot
+<div class ="autoclickerButtons">
+     <button id="chaserButton">20 Spawn Chaser</button>
+</div>
