@@ -455,7 +455,6 @@ document.addEventListener("keydown", (event) => {
 // Main Update Loop
 function update() {
   fps = calculateFps();
-  console.log(fps);
 
   if (timer <= 0) {
     incrPerSec = autoAmnt / fps;
